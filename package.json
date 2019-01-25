@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "box-exec": "^2.0.0",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "mongoose": "^5.4.6"
+  },
+  "name": "codart",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/awasthishubh/codart18.git",
+  "author": "awasthishubh",
+  "license": "MIT",
+  "private": true
+}
