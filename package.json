@@ -1,9 +1,10 @@
 {
   "dependencies": {
-    "box-exec": "^2.0.0",
+    "box-exec": "1.0.5",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
-    "mongoose": "^5.4.6"
+    "mongoose": "^5.4.6",
+    "multer": "^1.4.1"
   },
   "name": "codart",
   "version": "1.0.0",
