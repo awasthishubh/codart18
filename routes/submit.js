@@ -81,6 +81,6 @@ module.exports=function(app){
         boxExec.on("success",()=>{
             boxExec.execute();
         });
-        boxExec.setData("9",fileLoc,TestCase);
+        boxExec.setData(lang,fileLoc,TestCase);
     })
 }
