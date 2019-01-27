@@ -15,7 +15,6 @@ module.exports=function(app){
             "cpp":16
         }
         lang=allowedLang[req.body.lang]
-        const boxExec = require("box-exec")();
         team=req.body.team;
         number=req.body.number;
         
@@ -37,39 +36,51 @@ module.exports=function(app){
         //##########################################
 
         console.log({team,number})
+        //######---DB---############
+        Test=['1/V1.txt','1/V2.txt','1/T3.txt','1/T4.txt','1/T5.txt']
+        outputDB=['1','1','4','3','1']
+        //##############
 
         result=[]
+        TestCase=[]
+        output=[]
+        Test.forEach((f,i)=> {
+            file=path.join(__dirname,'../files/problems',f)
+            TestCase.push({
+                file,
+                timeout: 2
+            })
+            output[file]=outputDB[i]
+        });
 
-        boxExec.on("success",(data)=>{
-            console.log("success")
-            boxExec.execute();
+        const boxExec = require('box-exec')();
+        boxExec.on("output",()=>{
+            for(key in boxExec.output){
+                result.push({
+                    case:parseInt(key.slice(-5,-4)),
+                    sucess:boxExec.output[key].output===output[key],
+                    visible:key[key.length-6]=='V',
+                    output:key[key.length-6]=='V'?boxExec.output[key].output:null,
+                    expectedOutput:key[key.length-6]=='V'?output[key]:null
+                })
+            }
+            result.sort((a,b)=>{
+                if(a.case < b.case) return -1;
+                if(a.case > b.case) return 1;
+                return 0;
+            })
+            console.log(result)
+            res.send(boxExec.output)
+        });
+        boxExec.on("formatError", (err)=>{
+            console.log(err);
         });
         boxExec.on("error",()=>{
-            var err=true;
-            console.log("error")
-            console.log(typeof boxExec.errortext);
-            console.log(boxExec.errortext);
-            return res.status(400).json({err,Message:boxExec.errortext})
+            console.log(boxExec.errortext)
         });
-        boxExec.on("output",()=>{
-            console.log('output')
-            var err=false,result=[],points=0
-            res.json({output:boxExec.output});
-            // doc.testcases.forEach(function(testcase,i){
-            //     console.log(i,boxExec.output[testcase].output,doc.output[i])
-            //     if(boxExec.output[testcase].output.trim()==doc.output[i].trim()){
-            //         result.push(true);points++
-            //     } else{result.push(false)}
-            // })
+        boxExec.on("success",()=>{
+            boxExec.execute();
         });
-        boxExec.on("fileError",(err)=>{
-            console.log("fileError")
-            console.log(err);
-        });
-        boxExec.on("langKeyError",(err)=>{
-            console.log("langKeyError")
-            console.log(err);
-        });
-        boxExec.setData(lang,fileLoc,'123');
+        boxExec.setData("9",fileLoc,TestCase);
     })
 }

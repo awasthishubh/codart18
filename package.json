@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "box-exec": "1.0.5",
+    "box-exec": "^2.0.0",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "mongoose": "^5.4.6",
