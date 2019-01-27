@@ -13,7 +13,11 @@ const Questions = new Schema({
     },
     descr:String,
     testCase:Array,
-    output:Array
+    output:Array,
+    count:{
+        type:Number,
+        default: 0
+    }
 });
 
 module.exports = mongoose.model("questions", Questions);
