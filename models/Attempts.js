@@ -13,7 +13,8 @@ const Attempts = new Schema({
         type:Array,
         default:[]
     },
-    time:Object
+    time:Object,
+    download:String
 });
 
 module.exports = mongoose.model("attempts", Attempts);

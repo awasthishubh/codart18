@@ -27,12 +27,18 @@ module.exports=function(app){
         if(!ques)
             return res.status(404).json({err:'Question not found/assigned'})
         //###########--Set Files--################
+        team_=team.split(' ').join('_')
 
         orgName=req.file.originalname.split('.')
-        filename=`${team}_${qid}_${(new Date).getTime()}.${orgName[orgName.length-1]}`
+        filename=`${team_}_${qid}_${(new Date).getTime()}.${orgName[orgName.length-1]}`
 
-        fileLoc=path.join(__dirname,'../files/attempts',filename)
-        fileLoc=fileLoc.replace(' ','_')
+        folder=path.join(__dirname,'../files/attempts/',team_)
+        if(!fs.existsSync(folder)){
+            fs.mkdirSync(folder);
+        }
+
+        fileLoc=path.join(folder,filename)
+
         try{
             fs.renameSync(path.join(__dirname,'../files/uploads',req.file.filename),fileLoc)
         } catch(e){
@@ -84,13 +90,18 @@ module.exports=function(app){
                 if(a.case > b.case) return 1;
                 return 0;
             })
-
-            await Attempts.create({
-                qid,team,
-                time:new Date,
-                cases:resultDB,
-                score:points
-            })
+            Attempts.create({
+                    qid,team,
+                    time:new Date,
+                    cases:resultDB,
+                    score:points,
+                    download:path.join('download',team_,filename)
+                }, (e)=>{
+                    console.log(111,e)
+                })
+            // } catch(e){
+            //     console.log(e)
+            // }
 
             Score.findOne({qid,team},async (err,doc)=>{
                 if(err) return res.status(500).json({err:'db err'})
