@@ -1,6 +1,6 @@
 const Ques=require('../models/Question')
-const Score=require('../models/Score')
 const User=require('../models/Users')
+const Score=require('../models/Score')
 
 module.exports=function(app){
     app.post('/assign',async function(req,res){
@@ -16,7 +16,6 @@ module.exports=function(app){
                     $push: { assignedTo: team},
                     $inc:  {count:1}
                 })
-                score=await Score.create({qid:ques[0].id,team})
                 return res.json(ques[0])
             } catch(e){
                 console.error(e)
@@ -26,5 +25,34 @@ module.exports=function(app){
 
             
         })
+    })
+
+    app.get('/assign', function(req,res){
+        Ques.find({},'id assignedTo', (err,data)=>{
+            if(err) return res.status(500).json({err:'db err', hint:'assign, ques'})
+            team={}
+            data.forEach(el => {
+                el.assignedTo.forEach(tm=>{
+                    if(!team[tm])
+                        team[tm]=[el.id]
+                    else team[tm].push(el.id)
+                })
+            });
+            res.json(team)
+        })
+    })
+
+    app.delete('/assign', async function(req,res){
+        var {qid,team}=req.body
+        if(!(qid && team)) return res.status(400).json({err:'Incomplete req'})
+        if(!(await Ques.findOne({id:qid,assignedTo:team})))
+            return res.status(404).json({err:'Ques not assigned'})
+
+        await Ques.updateOne(
+            {id:qid},
+            {$pull:{assignedTo:team}}
+        )
+        await Score.remove({qid,team})
+        res.json({message:'unassigned'})
     })
 }
