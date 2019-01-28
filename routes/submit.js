@@ -2,6 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const Ques=require('../models/Question')
+const Attempts=require('../models/Attempts')
+const Score=require('../models/Score')
 
 var uploadLoc=path.join(__dirname,'../files/uploads')
 var upload = multer({ dest: uploadLoc })
@@ -48,6 +50,7 @@ module.exports=function(app){
         //##############
         points=0
         result=[]
+        resultDB=[]
         TestCase=[]
         output=[]
         Test.forEach((f,i)=> {
@@ -58,10 +61,9 @@ module.exports=function(app){
             })
             output[file]=outputDB[i]
         });
-        console.log(output,TestCase)
 
         const boxExec = require('box-exec')();
-        boxExec.on("output",()=>{
+        boxExec.on("output",async ()=>{
             for(key in boxExec.output){
                 visible=['1','2'].includes(key[key.length-5])
                 result.push({
@@ -73,6 +75,7 @@ module.exports=function(app){
                     output:visible?boxExec.output[key].output:null,
                     expectedOutput:visible?output[key]:null
                 })
+                resultDB.push(boxExec.output[key].output===output[key])
                 if(boxExec.output[key].output===output[key]&&!visible)
                     points+=5;
             }
@@ -81,9 +84,27 @@ module.exports=function(app){
                 if(a.case > b.case) return 1;
                 return 0;
             })
-            console.log(result)
-            res.json({result,points})
+
+            await Attempts.create({
+                qid,team,
+                time:new Date,
+                cases:resultDB,
+                score:points
+            })
+
+            Score.findOne({qid,team},async (err,doc)=>{
+                if(err) return res.status(500).json({err:'db err'})
+                if(!doc)
+                    await Score.create({qid,team, cases:resultDB, score:points})
+                else if(doc.score<points){
+                    doc.cases=resultDB
+                    doc.score=points
+                    doc.save()
+                }
+                res.json({result,points})
+            })
         });
+
         boxExec.on("formatError", (err)=>{
             console.log(err);
             res.status(400).json({err})

@@ -12,7 +12,8 @@ const Attempts = new Schema({
     cases:{
         type:Array,
         default:[]
-    }
+    },
+    time:Object
 });
 
 module.exports = mongoose.model("attempts", Attempts);
