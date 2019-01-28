@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const Attempts = new Schema({
+const Score = new Schema({
     qid:String,
     team:String,
     score:{
@@ -15,4 +15,4 @@ const Attempts = new Schema({
     }
 });
 
-module.exports = mongoose.model("attempts", Attempts);
+module.exports = mongoose.model("score", Score);
