@@ -13,14 +13,13 @@ mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
             output=[]; test=[];
             for(let i=1;i<=7;i++){
                 test.push(path.join(level,folder,`T${i}.txt`))
-                output.push(fs.readFileSync(path.join(qPath,`O${i}.txt`),"utf8"))
+                output.push(fs.readFileSync(path.join(qPath,`O${i}.txt`),"utf8").trim())
             }
 
-            descr=fs.readFileSync(path.join(qPath,'statement.txt'),"utf8")
+            descr=fs.readFileSync(path.join(qPath,'statement.txt'),"utf8").trim()
             // Ques.deleteMany({}, (err)=>{
             //     if(err) throw err
-            //     db.close()
-            // })
+                
             Ques.updateOne(
                 {id:level[0]+folder},
                 {
