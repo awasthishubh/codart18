@@ -12,6 +12,7 @@ const Questions = new Schema({
         enum :['hard','medium','easy']
     },
     descr:String,
+    title:String,
     testCase:Array,
     output:Array,
     count:{

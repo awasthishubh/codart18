@@ -16,7 +16,9 @@ mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
                 output.push(fs.readFileSync(path.join(qPath,`O${i}.txt`),"utf8").trim())
             }
 
-            descr=fs.readFileSync(path.join(qPath,'statement.txt'),"utf8").trim()
+            statement=fs.readFileSync(path.join(qPath,'statement.txt'),"utf8").trim()
+            title=statement.split('\n')[0]
+            descr=statement.split('\n').splice(1).join('\n')
             // Ques.deleteMany({}, (err)=>{
             //     if(err) throw err
                 
@@ -25,7 +27,7 @@ mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
                 {
                     id:level[0]+folder,
                     level,
-                    descr,
+                    descr, title,
                     testCase:test,
                     output:output
                 },
