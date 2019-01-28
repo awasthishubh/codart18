@@ -14,8 +14,14 @@ app.use((req,res, next)=>{
 })
 
 require('./routes/submit')(app)
+require('./routes/admin')(app)
 
-app.listen(process.env.PORT,function(e){
-    if(e) throw e
-    console.log('Server Started At',process.env.PORT)
+
+
+mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
+    if(err) throw err
+    app.listen(process.env.PORT,function(e){
+        if(e) throw e
+        console.log('Server Started At',process.env.PORT)
+    })
 })

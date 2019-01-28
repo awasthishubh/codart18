@@ -18,7 +18,7 @@ const Questions = new Schema({
         type:Number,
         default: 0
     },
-    AssignedTo:{
+    assignedTo:{
         type:Array,
         default: []
     }
