@@ -14,6 +14,7 @@ app.use((req,res, next)=>{
 })
 
 require('./routes/submit')(app)
+require('./routes/client')(app)
 require('./routes/admin')(app)
 
 
