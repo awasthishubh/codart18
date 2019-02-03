@@ -58,6 +58,7 @@ module.exports=function(app){
         result=[]
         resultDB=[]
         TestCase=[]
+        marking=[10,15,20,25,30]
         output=[]
         Test.forEach((f,i)=> {
             file=path.join(__dirname,'../files/problems',f)
@@ -71,6 +72,8 @@ module.exports=function(app){
         const boxExec = require('box-exec')();
         boxExec.on("output",async ()=>{
             for(key in boxExec.output){
+                console.log(11111111111,key[key.length-5])
+                console.log(key)
                 visible=['1','2'].includes(key[key.length-5])
                 result.push({
                     case:parseInt(key.slice(-5,-4)),
@@ -83,7 +86,7 @@ module.exports=function(app){
                 })
                 resultDB.push(boxExec.output[key].output===output[key])
                 if(boxExec.output[key].output===output[key]&&!visible)
-                    points+=5;
+                    points+=marking[parseInt(key[key.length-5])-3];
             }
             result.sort((a,b)=>{
                 if(a.case < b.case) return -1;
