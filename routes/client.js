@@ -2,10 +2,12 @@ const Users=require('../models/Users')
 const Score=require('../models/Score')
 const Ques=require('../models/Question')
 const Attempts=require('../models/Attempts')
+const jwt=require('jsonwebtoken')
+const userPolicy=require('../policy')
 path=require('path')
 
 module.exports=(app)=>{
-    app.get('/leaderboard',async (req,res)=>{
+    app.get('/leaderboard',userPolicy,async (req,res)=>{
         scre=[]
         teams=await Users.distinct('team');
         for(let i=0; i<teams.length; i++){
@@ -30,7 +32,7 @@ module.exports=(app)=>{
         res.json(scre)
     })
 
-    app.get('/team/problem',async (req,res)=>{
+    app.get('/team/problem',userPolicy,async (req,res)=>{
         data=await Ques.find({assignedTo:req.body.team},'id level descr')
         data=JSON.parse(JSON.stringify(data));
 
@@ -41,7 +43,7 @@ module.exports=(app)=>{
         res.json(data)
     })
     
-    app.get('/team',async (req,res)=>{
+    app.get('/team',userPolicy,async (req,res)=>{
         members=await Users.find({team:req.body.team},'firstname lastname email regno')
         points=0;
         (await Score.find({team:req.body.team}))
@@ -52,12 +54,33 @@ module.exports=(app)=>{
         res.json({team:req.body.team, members,points,totalQues,solvedQues})
     })
 
-    app.get('/team/attempts', async (req,res)=>{
+    app.get('/team/attempts',userPolicy, async (req,res)=>{
         attempts=await Attempts.find({team:req.body.team,qid:req.body.qid||/./})
         res.send(attempts)
     })
 
-    app.get('/download/:team/:file', async (req,res)=>{
+    app.get('/download/:team/:file',userPolicy, async (req,res)=>{
         res.download(path.join(__dirname, '../files/attempts/',req.params.team,req.params.file))
+    })
+
+    app.post('/login', async function(req,res){
+        var {team,passwd}=req.body
+        if(!team && !passwd) return res.status(400).json({sucess:false,msg:'Team and passwd required'});
+        try{
+            user=await Users.findOne({team,passwd})
+            console.log(user)
+            if(user){
+                token = jwt.sign({team},process.env.SECRET);
+                res.setHeader('Authorization', token);
+                res.json({sucess:true,token})
+            }
+            else{
+                res.status(404).json({sucess:false,msg:'Invalid User/Passwd'})
+            }
+        }
+        catch(e){
+            console.log(e);
+            res.status(500).json({sucess:false,msg:'Something went wrong'})
+        }
     })
 }
