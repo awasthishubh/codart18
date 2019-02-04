@@ -10,6 +10,7 @@ module.exports=(app)=>{
     app.get('/leaderboard',userPolicy,async (req,res)=>{
         scre=[]
         teams=await Users.distinct('team');
+        console.log(teams)
         for(let i=0; i<teams.length; i++){
             teamScore={team:teams[i],score:0, totalQues:0, solvedQues:0}
 

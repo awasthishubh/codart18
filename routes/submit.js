@@ -4,25 +4,25 @@ const fs = require('fs');
 const Ques=require('../models/Question')
 const Attempts=require('../models/Attempts')
 const Score=require('../models/Score')
+const userPolicy=require('../policy')
 
 var uploadLoc=path.join(__dirname,'../files/uploads')
 var upload = multer({ dest: uploadLoc })
 
 module.exports=function(app){
-    app.post('/submit', upload.single('file') ,async function(req,res){
+    app.post('/submit', upload.single('file'),userPolicy ,async function(req,res){
         //###########--Validates--################
         allowedLang={
             "python2": 7,
             "python3": 9,
             "c": 11,
             "cpp":16
-        }
+        }   
         lang=allowedLang[req.body.lang]
         var {qid,team}=req.body;
-        
         if(!qid || !lang || !req.file) 
             return res.status(400).json({Message:"Incomplete Request."})
-
+        console.log({id:qid,assignedTo:team})
         ques=await Ques.findOne({id:qid,assignedTo:team})
         if(!ques)
             return res.status(404).json({err:'Question not found/assigned'})
@@ -93,6 +93,7 @@ module.exports=function(app){
                 if(a.case > b.case) return 1;
                 return 0;
             })
+            console.log('creating log')
             Attempts.create({
                     qid,team,
                     time:new Date,
@@ -100,7 +101,7 @@ module.exports=function(app){
                     score:points,
                     download:path.join('download',team_,filename)
                 }, (e)=>{
-                    console.log(111,e)
+                    console.log('log created',e)
                 })
             // } catch(e){
             //     console.log(e)
