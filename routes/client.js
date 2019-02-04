@@ -33,7 +33,22 @@ module.exports=(app)=>{
     })
 
     app.get('/team/problem',userPolicy,async (req,res)=>{
-        data=await Ques.find({assignedTo:req.body.team},'id level descr')
+        if(req.query.qid){
+            console.log({assignedTo:req.body.team,
+                qid:req.query.qid})
+            ques=await Ques.findOne({
+                assignedTo:req.body.team,
+                id:req.query.qid
+            },'id level title descr')
+            console.log(ques)
+            if(ques){
+                score=await Score.findOne({team:req.body.team, qid:req.query.qid})
+                ques=JSON.parse(JSON.stringify(ques));
+                return res.json({...ques,point:score?score.score:0})
+            }
+            else return res.status(404).json({err:'Ques not assigned'})
+        }
+        data=await Ques.find({assignedTo:req.body.team},'id level title')
         data=JSON.parse(JSON.stringify(data));
 
         for(let i=0; i<data.length;i++){
