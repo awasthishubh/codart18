@@ -73,8 +73,6 @@ module.exports=function(app){
         const boxExec = require('box-exec')();
         boxExec.on("output",async ()=>{
             for(key in boxExec.output){
-                console.log(11111111111,key[key.length-5])
-                console.log(key)
                 visible=['1','2'].includes(key[key.length-5])
                 result.push({
                     case:parseInt(key.slice(-5,-4)),
@@ -126,8 +124,9 @@ module.exports=function(app){
             res.status(400).json({err})
         });
         boxExec.on("error",()=>{
-            console.log(111, boxExec.errortext)
-            res.status(400).json({err:boxExec.errortext})
+            console.log(12345, boxExec.errortext)
+            console.log(0000,String(boxExec.errortext))
+            res.status(400).json({err:String(boxExec.errortext)})
         });
         boxExec.on("success",()=>{
             boxExec.execute();
