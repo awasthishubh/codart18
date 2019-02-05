@@ -4,7 +4,7 @@ const fs = require('fs');
 const Ques=require('../models/Question')
 const Attempts=require('../models/Attempts')
 const Score=require('../models/Score')
-const userPolicy=require('../policy')
+const userPolicy=require('../policy').user
 
 var uploadLoc=path.join(__dirname,'../files/uploads')
 var upload = multer({ dest: uploadLoc })

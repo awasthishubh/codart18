@@ -1,10 +1,12 @@
 const Ques=require('../models/Question')
 const User=require('../models/Users')
 const Score=require('../models/Score')
-
+const adminPolicy=require('../policy').admin
+console.log(adminPolicy)
 module.exports=function(app){
-    app.post('/assign',async function(req,res){
+    app.post('/assign',adminPolicy,async function(req,res){
         var {level,team}=req.body
+        console.log({level,team})
         if(!['hard','medium','easy'].includes(level) || !(await User.findOne({team})))
             return res.status(400).json({err:'invalid level or team'})
         Ques.find({level,assignedTo:{$ne:team}},[],{sort:'count',limit:1},async (e,ques)=>{
@@ -16,18 +18,16 @@ module.exports=function(app){
                     $push: { assignedTo: team},
                     $inc:  {count:1}
                 })
-                return res.json(ques[0])
+                console.log({sucess:true, msg:ques[0].id+' assigned to '+team})
+                return res.json({sucess:true, msg:ques[0].id+' assigned to '+team})
             } catch(e){
                 console.error(e)
                 return res.json(ques[0])
             }
-           
-
-            
         })
     })
 
-    app.get('/assign', function(req,res){
+    app.get('/assign', adminPolicy, function(req,res){
         Ques.find({},'id assignedTo', (err,data)=>{
             if(err) return res.status(500).json({err:'db err', hint:'assign, ques'})
             team={}
@@ -42,7 +42,7 @@ module.exports=function(app){
         })
     })
 
-    app.delete('/assign', async function(req,res){
+    app.delete('/assign', adminPolicy, async function(req,res){
         var {qid,team}=req.body
         if(!(qid && team)) return res.status(400).json({err:'Incomplete req'})
         if(!(await Ques.findOne({id:qid,assignedTo:team})))

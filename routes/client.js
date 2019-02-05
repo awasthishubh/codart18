@@ -3,7 +3,8 @@ const Score=require('../models/Score')
 const Ques=require('../models/Question')
 const Attempts=require('../models/Attempts')
 const jwt=require('jsonwebtoken')
-const userPolicy=require('../policy')
+const userPolicy=require('../policy').user
+console.log(userPolicy)
 path=require('path')
 
 module.exports=(app)=>{
