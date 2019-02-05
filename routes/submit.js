@@ -16,7 +16,8 @@ module.exports=function(app){
             "python2": 7,
             "python3": 9,
             "c": 11,
-            "cpp":16
+            "cpp":16,
+            "java8":25
         }   
         lang=allowedLang[req.body.lang]
         var {qid,team}=req.body;

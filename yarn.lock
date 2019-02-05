@@ -32,7 +32,7 @@ bluebird@3.5.1:
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.1.tgz#d9551f9de98f1fcda1e683d17ee91a0602ee2eb9"
   integrity sha512-MKiLiV+I1AA596t9w1sQJ8jkiSr5+ZKi0WKrYGUn6d1Fx+Ij4tIj+m2WMQSGczs5jZVxV339chE8iwk6F64wjA==
 
-body-parser@1.18.3:
+body-parser@1.18.3, body-parser@^1.18.3:
   version "1.18.3"
   resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.18.3.tgz#5b292198ffdd553b3a0f20ded0592b956955c8b4"
   integrity sha1-WykhmP/dVTs6DyDe0FkrlWlVyLQ=
@@ -48,10 +48,12 @@ body-parser@1.18.3:
     raw-body "2.3.3"
     type-is "~1.6.16"
 
-box-exec@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/box-exec/-/box-exec-2.0.0.tgz#aa92f1d725e82acb5156f4e07f72bd7e8466c345"
-  integrity sha512-sTq1sFSzj0vxS2NnvAtHD9UvTcDbUbnoU2Ux/Wcbd3T504xfjXB4budfPYDiv46IrJHVgNyrt61mKnP8TScMLA==
+"box-exec@git+https://git@github.com/akshitgrover/box-exec.git":
+  version "2.0.1"
+  resolved "git+https://git@github.com/akshitgrover/box-exec.git#03021c3e4f98f96b45522eb5eec3177035c40d95"
+  dependencies:
+    body-parser "^1.18.3"
+    express "^4.16.4"
 
 bson@^1.1.0, bson@~1.1.0:
   version "1.1.0"
