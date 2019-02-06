@@ -12,6 +12,12 @@ function getQues(){
     })
 }
 
+function getParticipant(){
+    $.get('/participants',function(data){
+        $('#participant').html(JSON.stringify(data,undefined,4))
+    })
+}
+
 function getQueue(noRes){
     $.get('/queue',function(data){
         $('#dartQueue').html(JSON.stringify(data,undefined,4))

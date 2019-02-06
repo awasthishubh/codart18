@@ -4,6 +4,7 @@ const Score=require('../models/Score')
 const adminPolicy=require('../policy').admin
 const teamQueue=require('../teamQueue')
 const jwt=require('jsonwebtoken')
+const Users=require('../models/Users')
 console.log(adminPolicy)
 module.exports=function(app){
     app.post('/assign',adminPolicy,async function(req,res){
@@ -90,12 +91,14 @@ module.exports=function(app){
     })
 
     app.post('/adminLogin',(req,res)=>{
-        console.log(req.cookies.token)
         if(req.body.adminId==process.env.ADMINID){
             token = jwt.sign({type:'admin'},process.env.SECRET);
             res.cookie('token',token, { maxAge: 900000, httpOnly: true })
             return res.json({sucess:true,token})
         }
         res.status(401).json({err:'invalid'})
+    })
+    app.get('/participants',adminPolicy,async (req,res)=>{
+        res.json(await Users.distinct('team'))
     })
 }
