@@ -20,13 +20,17 @@ module.exports=function(app){
             "java8":25
         }   
         lang=allowedLang[req.body.lang]
-        var {qid,team}=req.body;
-        if(!qid || !lang || !req.file) 
+        var {team}=req.body;
+        if(!lang || !req.file) 
             return res.status(400).json({Message:"Incomplete Request."})
-        console.log({id:qid,assignedTo:team})
+
+        qid=(await Score.findOne({team:req.body.team,allowed:true})).qid
+        if(!qid) return res.status(404).json({err:'No Question Assigned'})
+
         ques=await Ques.findOne({id:qid,assignedTo:team})
         if(!ques)
             return res.status(404).json({err:'Question not found/assigned'})
+
         //###########--Set Files--################
         team_=team.split(' ').join('_')
 
@@ -59,6 +63,8 @@ module.exports=function(app){
         result=[]
         resultDB=[]
         TestCase=[]
+        done=false
+
         marking=[10,15,20,25,30]
         output=[]
         Test.forEach((f,i)=> {
@@ -92,7 +98,7 @@ module.exports=function(app){
                 if(a.case > b.case) return 1;
                 return 0;
             })
-            console.log('creating log')
+            console.log('creating log...')
             Attempts.create({
                     qid,team,
                     time:new Date,
@@ -100,11 +106,8 @@ module.exports=function(app){
                     score:points,
                     download:path.join('download',team_,filename)
                 }, (e)=>{
-                    console.log('log created',e)
+                    console.log('log created',{err:e})
                 })
-            // } catch(e){
-            //     console.log(e)
-            // }
 
             Score.findOne({qid,team},async (err,doc)=>{
                 if(err) return res.status(500).json({err:'db err'})
@@ -115,7 +118,7 @@ module.exports=function(app){
                     doc.score=points
                     doc.save()
                 }
-                res.json({result,points})
+                res.json({points,done:points==100?true:false,result})
             })
         });
 

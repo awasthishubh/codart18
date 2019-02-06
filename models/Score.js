@@ -11,7 +11,11 @@ const Score = new Schema({
     },
     cases:{
         type:Array,
-        default:[]
+        default:[false]
+    },
+    allowed:{
+        type:Boolean,
+        default:true
     }
 });
 
