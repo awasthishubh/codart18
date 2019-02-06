@@ -3,6 +3,7 @@ const Score=require('../models/Score')
 const Ques=require('../models/Question')
 const Attempts=require('../models/Attempts')
 const jwt=require('jsonwebtoken')
+const Queue=require('../teamQueue')
 const userPolicy=require('../policy').user
 console.log(userPolicy)
 path=require('path')
@@ -21,7 +22,7 @@ module.exports=(app)=>{
             })
             teamScore.solvedQues=await Score.find({team:teams[i],cases:{$ne:false}}).count()
             teamScore.totalQues=await Ques.find({assignedTo:teams[i]}).count()
-
+            leaderboard=
             scre.push(teamScore)
         }
         scre.sort((a,b)=>{
@@ -31,33 +32,36 @@ module.exports=(app)=>{
             if(a.team<b.team) return -1
             else return 0
         })
-        res.json(scre)
+        position=scre.findIndex(x=>x.team==req.body.team)+1
+        res.json({position,result:scre})
     })
 
     app.get('/team/problem',userPolicy,async (req,res)=>{
-        if(req.query.qid){
-            console.log({assignedTo:req.body.team,
-                qid:req.query.qid})
+        // if(req.query.qid){
+            q=(await Score.findOne({team:req.body.team,allowed:true}))
+            if(!q){
+                index=await Queue.getIndex(req.body.team)
+                return res.status(404).json({err:'No Ques assigned',QueueIndex:index})
+            }
+
             ques=await Ques.findOne({
-                assignedTo:req.body.team,
-                id:req.query.qid
+                id:q.qid,
             },'id level title descr')
-            console.log(ques)
             if(ques){
                 score=await Score.findOne({team:req.body.team, qid:req.query.qid})
                 ques=JSON.parse(JSON.stringify(ques));
                 return res.json({...ques,point:score?score.score:0})
             }
-            else return res.status(404).json({err:'Ques not assigned'})
-        }
-        data=await Ques.find({assignedTo:req.body.team},'id level title')
-        data=JSON.parse(JSON.stringify(data));
+            else return res.status(404).json({err:'No Ques assigned'})
+        // }
+        // data=await Ques.find({assignedTo:req.body.team},'id level title')
+        // data=JSON.parse(JSON.stringify(data));
 
-        for(let i=0; i<data.length;i++){
-            score=await Score.findOne({team:req.body.team,qid:data[i].id})
-            data[i].point=score?score.score:0;
-        }
-        res.json(data)
+        // for(let i=0; i<data.length;i++){
+        //     score=await Score.findOne({team:req.body.team,qid:data[i].id})
+        //     data[i].point=score?score.score:0;
+        // }
+        // res.json(data)
     })
     
     app.get('/team',userPolicy,async (req,res)=>{
@@ -67,12 +71,16 @@ module.exports=(app)=>{
             .forEach(pr=>points+=pr.score)
         solvedQues=await Score.find({team:req.body.team,cases:{$ne:false}}).count()
         totalQues=await Ques.find({assignedTo:req.body.team}).count()
-
         res.json({team:req.body.team, members,points,totalQues,solvedQues})
     })
 
     app.get('/team/attempts',userPolicy, async (req,res)=>{
-        attempts=await Attempts.find({team:req.body.team,qid:req.body.qid||/./})
+        q=(await Score.findOne({team:req.body.team,allowed:true}))
+        if(!q){
+            index=await Queue.getIndex(req.body.team)
+            return res.status(404).json({err:'No Ques assigned',QueueIndex:index})
+        }
+        attempts=await Attempts.find({team:req.body.team,qid:q.id})
         res.send(attempts)
     })
 
