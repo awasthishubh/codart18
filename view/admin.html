@@ -1,0 +1,37 @@
+<div style="display:inline-block; width: 50%">
+    <h1>Admin View</h1>
+    <div>
+        <b>Dart Queue</b><br>
+        <pre id="dartQueue"></pre>
+        <button onclick="delQueue()">Delete</button>
+        <button onclick="insertQueue()">Insert</button>
+        <input type="text" id="teamToQueue"/>
+    </div>
+    <hr>
+    <h3>Assign</h3>
+    <input type="text" placeholder="level of question" id="level2assign">
+    <button onclick="assign()" >Assign</button>
+    <hr>
+    <h3>Remove</h3> 
+    <input type="text" placeholder="Team name" id="team2del">
+    <input type="text" placeholder="question ID" id="q2del">
+    <button onclick="delAssign()">Delete</button>
+    <hr>
+    <h3>Question View:</h3>
+    <pre id="questions">
+        
+
+    </pre>
+    <hr>
+    
+</div>
+<div style="display:inline-block; width: 45%; min-height:90vh;padding: 10px; vertical-align: top; border: 1px solid black">
+    <h1>Response</h1>
+<div>
+<pre id="response">
+
+</pre>
+</div>
+</div>
+<script src="./jquery.js"></script>
+<script src="./admin.js"></script>
