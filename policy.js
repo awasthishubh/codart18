@@ -30,6 +30,7 @@ user = (req, res, next)=>{
 }
 
 admin=function(req,res, next){
+    // return next()
     let authHeader = req.get("Authorization") || "";
     let split = authHeader.split(" ");
 
@@ -37,7 +38,7 @@ admin=function(req,res, next){
     else token=split[0]
 
     if(!authHeader || !token){
-        token=req.body.token
+        token=req.body.token || req.cookies.token
         if(!token) return res.status(406).json({err:"Invalid authorization header"});
     }
     jwt.verify(token, process.env.SECRET, function(err, decoded) {

@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "box-exec": "git+https://git@github.com/akshitgrover/box-exec.git",
+    "cookie-parser": "^1.4.3",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.4.0",

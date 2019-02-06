@@ -1,11 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+var cookieParser = require('cookie-parser')
+const path=require("path")
+
 require('dotenv').config()
 app=express()
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(cookieParser())
 app.use((req,res, next)=>{	
     res.header("Access-Control-Allow-Origin", "*");	
     res.header("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept");
@@ -17,7 +21,8 @@ require('./routes/submit')(app)
 require('./routes/client')(app)
 require('./routes/admin')(app)
 
-
+console.log(path.join(__dirname,'/view'))
+app.use('/adminView',express.static(path.join(__dirname,'/adminView')))
 
 mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
     if(err) throw err

@@ -3,7 +3,7 @@ const User=require('../models/Users')
 const Score=require('../models/Score')
 const adminPolicy=require('../policy').admin
 const teamQueue=require('../teamQueue')
-
+const jwt=require('jsonwebtoken')
 console.log(adminPolicy)
 module.exports=function(app){
     app.post('/assign',adminPolicy,async function(req,res){
@@ -75,18 +75,27 @@ module.exports=function(app){
         res.json({message:'unassigned'})
     })
 
-    app.get('/queue',async (req,res)=>{
+    app.get('/queue',adminPolicy, async (req,res)=>{
         queue=await teamQueue.getAll()
         res.json(queue)
     })
-    app.post('/queue',async (req,res)=>{
-        if(!req.body.team)res.status(400).json({err:'err'})
+    app.post('/queue',adminPolicy, async (req,res)=>{
+        if(!req.body.team) return res.status(400).json({err:'err'})
         queue=await teamQueue.insert(req.body.team)
         res.json(queue)
     })
-    app.delete('/queue',async (req,res)=>{
-        if(!req.body.team)res.status(400).json({err:'err'})
+    app.delete('/queue',adminPolicy, async (req,res)=>{
         queue=await teamQueue.shift(req.body.team)
         res.json(queue)
+    })
+
+    app.post('/adminLogin',(req,res)=>{
+        console.log(req.cookies.token)
+        if(req.body.adminId==process.env.ADMINID){
+            token = jwt.sign({type:'admin'},process.env.SECRET);
+            res.cookie('token',token, { maxAge: 900000, httpOnly: true })
+            return res.json({sucess:true,token})
+        }
+        res.status(401).json({err:'invalid'})
     })
 }

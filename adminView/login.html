@@ -1,0 +1,14 @@
+<input type="password" id="txt">
+<button onclick="login()">login</button>
+<script src="./jquery.js"></script>
+<script>
+    function login(){
+        $.ajax({url:'/adminlogin',type:'POST',data:{adminId:$('#txt').val()}})
+        .done((data)=>{
+            window.location.href='/adminView'
+        })
+        .catch((e)=>{
+            console.log(e.responseText)
+        })
+    }
+</script>
