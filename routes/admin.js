@@ -7,20 +7,27 @@ const teamQueue=require('../teamQueue')
 console.log(adminPolicy)
 module.exports=function(app){
     app.post('/assign',adminPolicy,async function(req,res){
-        var {level,team}=req.body
+        var {level}=req.body
+        team=await teamQueue.shift()
+        
+        if(team===undefined) return res.status(400).json({msg:'empty queue'})
         console.log({level,team})
+
         if(!['hard','medium','easy'].includes(level) || !(await User.findOne({team})))
             return res.status(400).json({err:'invalid level or team'})
+
+        if(await Score.findOne({team,allowed:true}))
+            return res.status(400).json({err:'Already assigned'})
+
         Ques.find({level,assignedTo:{$ne:team}},[],{sort:'count',limit:1},async (e,ques)=>{
             if(e) return res.status(500).json({err:'db err', hint:'assign, ques'})
             if(!ques.length) return res.status(404).json({err:'no ques found'})
 
             try{
-                UpdateQ=await Ques.updateOne({id:ques[0].id},{
+                await Ques.updateOne({id:ques[0].id},{
                     $push: { assignedTo: team},
                     $inc:  {count:1}
                 })
-                await Score.updateMany({team},{allowed:false})
                 await Score.create({qid:ques[0].id,team})
                 console.log({sucess:true, msg:ques[0].id+' assigned to '+team})
                 return res.json({sucess:true, msg:ques[0].id+' assigned to '+team})
@@ -51,16 +58,6 @@ module.exports=function(app){
                 }
             }
             res.json(team)
-            // await data.forEach(async el => {
-            //     await el.assignedTo.forEach(async tm=>{
-            //         allowed=(await Score.findOne({team:tm,qid:el.id})).allowed
-            //         if(!team[tm])
-            //             team[tm]=[{id:el.id,allowed}]
-            //         else team[tm].push({id:el.id,allowed})
-            //         console.log(team[tm])
-            //     })
-            // });
-            // res.json(team)
         })
     })
 

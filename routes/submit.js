@@ -118,6 +118,10 @@ module.exports=function(app){
                     doc.score=points
                     doc.save()
                 }
+                if(points==100){
+                    await Score.updateMany({team:req.body.team},{allowed:false})
+                    await Queue.insert(req.body.team)
+                }
                 res.json({points,done:points==100?true:false,result})
             })
         });

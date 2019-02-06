@@ -37,31 +37,21 @@ module.exports=(app)=>{
     })
 
     app.get('/team/problem',userPolicy,async (req,res)=>{
-        // if(req.query.qid){
-            q=(await Score.findOne({team:req.body.team,allowed:true}))
-            if(!q){
-                index=await Queue.getIndex(req.body.team)
-                return res.status(404).json({err:'No Ques assigned',QueueIndex:index})
-            }
+        q=(await Score.findOne({team:req.body.team,allowed:true}))
+        if(!q){
+            index=await Queue.getIndex(req.body.team)
+            return res.status(404).json({err:'No Ques assigned',QueueIndex:index})
+        }
 
-            ques=await Ques.findOne({
-                id:q.qid,
-            },'id level title descr')
-            if(ques){
-                score=await Score.findOne({team:req.body.team, qid:req.query.qid})
-                ques=JSON.parse(JSON.stringify(ques));
-                return res.json({...ques,point:score?score.score:0})
-            }
-            else return res.status(404).json({err:'No Ques assigned'})
-        // }
-        // data=await Ques.find({assignedTo:req.body.team},'id level title')
-        // data=JSON.parse(JSON.stringify(data));
-
-        // for(let i=0; i<data.length;i++){
-        //     score=await Score.findOne({team:req.body.team,qid:data[i].id})
-        //     data[i].point=score?score.score:0;
-        // }
-        // res.json(data)
+        ques=await Ques.findOne({
+            id:q.qid,
+        },'id level title descr')
+        if(ques){
+            score=await Score.findOne({team:req.body.team, qid:req.query.qid})
+            ques=JSON.parse(JSON.stringify(ques));
+            return res.json({...ques,point:score?score.score:0})
+        }
+        else return res.status(404).json({err:'No Ques assigned'})
     })
     
     app.get('/team',userPolicy,async (req,res)=>{
@@ -80,7 +70,7 @@ module.exports=(app)=>{
             index=await Queue.getIndex(req.body.team)
             return res.status(404).json({err:'No Ques assigned',QueueIndex:index})
         }
-        attempts=await Attempts.find({team:req.body.team,qid:q.id})
+        attempts=await Attempts.find({team:req.body.team,qid:q.qid})
         res.send(attempts)
     })
 
@@ -106,6 +96,18 @@ module.exports=(app)=>{
         catch(e){
             console.log(e);
             res.status(500).json({sucess:false,msg:'Something went wrong'})
+        }
+    })
+
+    app.post('/team/problem/skip',userPolicy,async function(req,res){
+        console.log({team:req.body.team})
+        try{
+            await Score.updateMany({team:req.body.team},{allowed:false})
+            await Queue.insert(req.body.team)
+            res.json({sucess:true})
+        } catch(e){
+            console.log(e)
+            res.json({sucess:false})
         }
     })
 }
