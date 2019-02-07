@@ -24,9 +24,9 @@ module.exports=function(app){
         if(!lang || !req.file) 
             return res.status(400).json({Message:"Incomplete Request."})
 
-        qid=(await Score.findOne({team:req.body.team,allowed:true})).qid
-        if(!qid) return res.status(404).json({err:'No Question Assigned'})
-
+        q=(await Score.findOne({team:req.body.team,allowed:true}))
+        if(!q) return res.status(404).json({err:'No Question Assigned'})
+        qid=q.qid
         ques=await Ques.findOne({id:qid,assignedTo:team})
         if(!ques)
             return res.status(404).json({err:'Question not found/assigned'})
@@ -65,7 +65,7 @@ module.exports=function(app){
         TestCase=[]
         done=false
 
-        marking=[10,15,20,25,30]
+        marking=[100]
         output=[]
         Test.forEach((f,i)=> {
             file=path.join(__dirname,'../files/problems',f)
@@ -79,7 +79,7 @@ module.exports=function(app){
         const boxExec = require('box-exec')();
         boxExec.on("output",async ()=>{
             for(key in boxExec.output){
-                visible=['1','2'].includes(key[key.length-5])
+                visible=['1'].includes(key[key.length-5])
                 result.push({
                     case:parseInt(key.slice(-5,-4)),
                     sucess:boxExec.output[key].output===output[key],

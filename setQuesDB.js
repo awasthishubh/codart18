@@ -11,7 +11,7 @@ mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
             qPath=path.join(dPath,folder)
             if(folder=='0') return
             output=[]; test=[];
-            for(let i=1;i<=7;i++){
+            for(let i=1;i<=2;i++){
                 test.push(path.join(level,folder,`T${i}.txt`))
                 output.push(fs.readFileSync(path.join(qPath,`O${i}.txt`),"utf8").trim())
             }

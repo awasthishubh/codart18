@@ -3,9 +3,12 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 var cookieParser = require('cookie-parser')
 const path=require("path")
+const http=require('http')
+app=express()
+var server=http.createServer(app)
+// var io=socketIO(server)
 
 require('dotenv').config()
-app=express()
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -26,7 +29,7 @@ app.use('/adminView',express.static(path.join(__dirname,'/adminView')))
 
 mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
     if(err) throw err
-    app.listen(process.env.PORT,function(e){
+    server.listen(process.env.PORT,function(e){
         if(e) throw e
         console.log('Server Started At',process.env.PORT)
     })
