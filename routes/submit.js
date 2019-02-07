@@ -11,6 +11,7 @@ var uploadLoc=path.join(__dirname,'../files/uploads')
 var upload = multer({ dest: uploadLoc })
 
 module.exports=function(app,io,socketTeam){
+    console.log(232324343545656)
     app.post('/submit', upload.single('file'),userPolicy ,async function(req,res){
         //###########--Validates--################
         allowedLang={

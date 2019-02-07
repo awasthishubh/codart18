@@ -1,10 +1,10 @@
 const Ques=require('../models/Question')
-const User=require('../models/Users')
+const Team=require('../models/Team')
 const Score=require('../models/Score')
 const adminPolicy=require('../policy').admin
 const teamQueue=require('../teamQueue')
 const jwt=require('jsonwebtoken')
-const Users=require('../models/Users')
+// const Users=require('../models/Users')
 var emitMem=require('../socket').brodcast
 
 console.log(adminPolicy)
@@ -12,11 +12,11 @@ module.exports=function(app,io,socketTeam){
     app.post('/assign',adminPolicy,async function(req,res){
         var {level}=req.body
         team=await teamQueue.shift()
-        
+        team=team.toLowerCase()
         if(team===undefined) return res.status(400).json({msg:'empty queue'})
         console.log({level,team})
 
-        if(!['hard','medium','easy'].includes(level) || !(await User.findOne({team})))
+        if(!['hard','medium','easy'].includes(level) || !(await Team.findOne({team})))
             return res.status(400).json({err:'invalid level or team'})
 
         if(await Score.findOne({team,allowed:true}))
@@ -102,6 +102,6 @@ module.exports=function(app,io,socketTeam){
         res.status(401).json({err:'invalid'})
     })
     app.get('/participants',adminPolicy,async (req,res)=>{
-        res.json(await Users.distinct('team'))
+        res.json(await Team.distinct('team'))
     })
 }

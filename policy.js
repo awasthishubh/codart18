@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("./models/Users");
+const Team = require("./models/Team");
 
 user = (req, res, next)=>{
     let authHeader = req.get("Authorization") || "";
@@ -18,7 +18,7 @@ user = (req, res, next)=>{
         }
         console.log(decoded)
         if(!decoded.team) return res.status(401).json({err:"Team not found"});
-        User.findOne({team:decoded.team},function(err,doc){
+        Team.findOne({team:decoded.team},function(err,doc){
             if(!doc){
                 return res.status(401).json({err:"Not allowed for round 2"});
             }

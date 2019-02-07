@@ -11,4 +11,4 @@ const users = new Schema({
     phone: String
 });
 
-module.exports = mongoose.model("users", users);
+module.exports = mongoose.model("allRegUsers", users);

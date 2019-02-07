@@ -1,4 +1,4 @@
-const Users=require('../models/Users')
+const Team=require('../models/Team')
 const Score=require('../models/Score')
 const Ques=require('../models/Question')
 const Attempts=require('../models/Attempts')
@@ -12,11 +12,10 @@ var emitMem=require('../socket').brodcast
 module.exports=(app,io,socketTeam)=>{
     app.get('/leaderboard',userPolicy,async (req,res)=>{
         scre=[]
-        teams=await Users.distinct('team');
+        teams=await Team.distinct('team');
         console.log(teams)
         for(let i=0; i<teams.length; i++){
             teamScore={team:teams[i],score:0, totalQues:0, solvedQues:0}
-
             teamScr=await Score.find({team:teams[i]})
             teamScr.forEach(point=>{
                 teamScore.score+=point.score
@@ -56,13 +55,14 @@ module.exports=(app,io,socketTeam)=>{
     })
     
     app.get('/team',userPolicy,async (req,res)=>{
-        members=await Users.find({team:req.body.team},'firstname lastname email regno')
+        teamDetails=await Team.findOne({team:req.body.team},{'passwd':0})
+        teamDetails=JSON.parse(JSON.stringify(teamDetails))
         points=0;
         (await Score.find({team:req.body.team}))
             .forEach(pr=>points+=pr.score)
         solvedQues=await Score.find({team:req.body.team,cases:{$ne:false}}).count()
         totalQues=await Ques.find({assignedTo:req.body.team}).count()
-        res.json({team:req.body.team, members,points,totalQues,solvedQues})
+        res.json({...teamDetails,team:req.body.team,points,totalQues,solvedQues})
     })
 
     app.get('/team/attempts',userPolicy, async (req,res)=>{
@@ -82,10 +82,12 @@ module.exports=(app,io,socketTeam)=>{
     app.post('/login', async function(req,res){
         var {team,passwd}=req.body
         if(!team && !passwd) return res.status(400).json({sucess:false,msg:'Team and passwd required'});
+        team=team.toLowerCase()
+        console.log(({team,passwd}))
         try{
-            user=await Users.findOne({team,passwd})
-            console.log(user)
-            if(user){
+            teamVerified=await Team.findOne({team,passwd})
+            console.log(teamVerified)
+            if(teamVerified){
                 token = jwt.sign({team},process.env.SECRET);
                 res.setHeader('Authorization', token);
                 res.json({sucess:true,token})
@@ -111,6 +113,10 @@ module.exports=(app,io,socketTeam)=>{
             console.log(e)
             res.json({sucess:false})
         }
+    })
+
+    app.get('/team/queue',userPolicy,async function(req,res){
+        res.json({index:await Queue.getIndex(req.body.team)})
     })
 
     app.get('/testsocket',(req,res)=>{
