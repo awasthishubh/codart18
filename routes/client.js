@@ -7,8 +7,9 @@ const Queue=require('../teamQueue')
 const userPolicy=require('../policy').user
 console.log(userPolicy)
 path=require('path')
+var emitMem=require('../socket').brodcast
 
-module.exports=(app)=>{
+module.exports=(app,io,socketTeam)=>{
     app.get('/leaderboard',userPolicy,async (req,res)=>{
         scre=[]
         teams=await Users.distinct('team');
@@ -104,10 +105,18 @@ module.exports=(app)=>{
         try{
             await Score.updateMany({team:req.body.team},{allowed:false})
             await Queue.insert(req.body.team)
+            emitMem(io,socketTeam[req.body.team],req.body.socketId,'updateQues')
             res.json({sucess:true})
         } catch(e){
             console.log(e)
             res.json({sucess:false})
         }
+    })
+
+    app.get('/testsocket',(req,res)=>{
+        io.emit('hello')
+        console.log(req.query.socketId)
+        emitMem(io,socketTeam['Alpha'],req.query.socketId,'updateSub')
+        res.end()
     })
 }

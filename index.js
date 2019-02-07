@@ -4,9 +4,10 @@ const bodyParser = require("body-parser");
 var cookieParser = require('cookie-parser')
 const path=require("path")
 const http=require('http')
-app=express()
+var socketIO = require('socket.io')
+var app=express()
 var server=http.createServer(app)
-// var io=socketIO(server)
+var io=socketIO(server)
 
 require('dotenv').config()
 
@@ -20,9 +21,13 @@ app.use((req,res, next)=>{
     next()
 })
 
-require('./routes/submit')(app)
-require('./routes/client')(app)
-require('./routes/admin')(app)
+socketTeam={}
+
+
+require('./socket').onFunc(io,socketTeam)
+require('./routes/submit')(app,io,socketTeam)
+require('./routes/client')(app,io,socketTeam)
+require('./routes/admin')(app,io,socketTeam)
 
 console.log(path.join(__dirname,'/view'))
 app.use('/adminView',express.static(path.join(__dirname,'/adminView')))

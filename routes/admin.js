@@ -5,8 +5,10 @@ const adminPolicy=require('../policy').admin
 const teamQueue=require('../teamQueue')
 const jwt=require('jsonwebtoken')
 const Users=require('../models/Users')
+var emitMem=require('../socket').brodcast
+
 console.log(adminPolicy)
-module.exports=function(app){
+module.exports=function(app,io,socketTeam){
     app.post('/assign',adminPolicy,async function(req,res){
         var {level}=req.body
         team=await teamQueue.shift()
@@ -30,6 +32,7 @@ module.exports=function(app){
                     $inc:  {count:1}
                 })
                 await Score.create({qid:ques[0].id,team})
+                emitMem(io,socketTeam[team],null,'updateQues')
                 console.log({sucess:true, msg:ques[0].id+' assigned to '+team})
                 return res.json({sucess:true, msg:ques[0].id+' assigned to '+team})
             } catch(e){
@@ -67,12 +70,12 @@ module.exports=function(app){
         if(!(qid && team)) return res.status(400).json({err:'Incomplete req'})
         if(!(await Ques.findOne({id:qid,assignedTo:team})))
             return res.status(404).json({err:'Ques not assigned'})
-
         await Ques.updateOne(
             {id:qid},
             {$pull:{assignedTo:team}}
         )
         await Score.remove({qid,team})
+        emitMem(io,socketTeam[team],null,'updateQues')
         res.json({message:'unassigned'})
     })
 
@@ -81,7 +84,7 @@ module.exports=function(app){
         res.json(queue)
     })
     app.post('/queue',adminPolicy, async (req,res)=>{
-        if(!req.body.team) return res.status(400).json({err:'err'})
+        if(!req.body.team) return res.status(400).json({err:'team name required'})
         queue=await teamQueue.insert(req.body.team)
         res.json(queue)
     })

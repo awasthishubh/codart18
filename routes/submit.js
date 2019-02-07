@@ -6,10 +6,11 @@ const Attempts=require('../models/Attempts')
 const Score=require('../models/Score')
 const userPolicy=require('../policy').user
 
+var emitMem=require('../socket').brodcast
 var uploadLoc=path.join(__dirname,'../files/uploads')
 var upload = multer({ dest: uploadLoc })
 
-module.exports=function(app){
+module.exports=function(app,io,socketTeam){
     app.post('/submit', upload.single('file'),userPolicy ,async function(req,res){
         //###########--Validates--################
         allowedLang={
@@ -117,11 +118,15 @@ module.exports=function(app){
                     doc.cases=resultDB
                     doc.score=points
                     doc.save()
+                    //leaderboard refresh
+                    io.emit('updateLeader')
                 }
                 if(points==100){
                     await Score.updateMany({team:req.body.team},{allowed:false})
                     await Queue.insert(req.body.team)
+                    emitMem(io,socketTeam[req.body.team],req.body.socketId,'updateQues')
                 }
+                emitMem(io,socketTeam[req.body.team],req.body.socketId,'updateSub')
                 res.json({points,done:points==100?true:false,result})
             })
         });
