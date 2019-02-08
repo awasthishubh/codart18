@@ -1,10 +1,12 @@
 
 var jwt=require('jsonwebtoken')
+
 module.exports={
     brodcast:function(io,sockets,id,msg){
         if(!sockets) return
         sockets.forEach(element => {
             if(element!=id){
+                console.log(`sending message '${msg}' to '${element}`)
                 io.to(element).emit(msg)
             }
         });

@@ -15,7 +15,7 @@ mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
         teamArray=[]
         for(key in team){
             teamArray.push({
-                team:key.toLowerCase(),
+                team:key.toLowerCase().trim(),
                 skips:3,
                 lastSkip:null,
                 passwd:'',

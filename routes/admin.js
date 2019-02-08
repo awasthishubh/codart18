@@ -104,4 +104,7 @@ module.exports=function(app,io,socketTeam){
     app.get('/participants',adminPolicy,async (req,res)=>{
         res.json(await Team.distinct('team'))
     })
+    app.get('/sockets',adminPolicy,async (req,res)=>{
+        res.json(socketTeam)
+    })
 }

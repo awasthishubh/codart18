@@ -82,6 +82,13 @@ function delQueue(){
     })
 }
 
+function getSocket(){
+    $.get('/sockets',function(data){
+        $('#socketMem').html(JSON.stringify(data,undefined,4))
+    })
+}
+
 getQues()
 getQueue()
+getSocket()
 getParticipant()
