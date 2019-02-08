@@ -105,8 +105,19 @@ module.exports=(app,io,socketTeam)=>{
     app.post('/team/problem/skip',userPolicy,async function(req,res){
         console.log({team:req.body.team})
         try{
+            teamDetails=await Team.findOne({team:req.body.team})
+            if(teamDetails.skips<1)
+                return res.status(400).json({err:'You are exceeding skip limit'})
+            if(teamDetails.lastSkip>(Date.now()-parseInt(process.env.SKIPTIME)*1000*60)){
+                remainTime=teamDetails.lastSkip/60000-Date.now()/60000+parseInt(process.env.SKIPTIME)
+                return res.status(400).json({err:`Please wait for ${Math.floor(remainTime)} mins befor next skip.`})
+            }
             await Score.updateMany({team:req.body.team},{allowed:false})
             await Queue.insert(req.body.team)
+
+            teamDetails.skips=teamDetails.skips-1
+            teamDetails.lastSkip=Date.now()
+            teamDetails.save()
             emitMem(io,socketTeam[req.body.team],req.body.socketId,'updateQues')
             res.json({sucess:true})
         } catch(e){
