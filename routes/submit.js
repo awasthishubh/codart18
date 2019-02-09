@@ -5,6 +5,7 @@ const Ques=require('../models/Question')
 const Attempts=require('../models/Attempts')
 const Score=require('../models/Score')
 const userPolicy=require('../policy').user
+const Queue=require('../teamQueue')
 
 var emitMem=require('../socket').brodcast
 var uploadLoc=path.join(__dirname,'../files/uploads')
@@ -81,10 +82,11 @@ module.exports=function(app,io,socketTeam){
         const boxExec = require('box-exec')();
         boxExec.on("output",async ()=>{
             for(key in boxExec.output){
+                output[key]=output[key].replace(/\r\n/g,'\n')
                 visible=['1'].includes(key[key.length-5])
                 result.push({
                     case:parseInt(key.slice(-5,-4)),
-                    sucess:boxExec.output[key].output===output[key],
+                    sucess:boxExec.output[key].output===output[key].replace(/\r\n|\r/g,'\n'),
                     visible,
                     error:boxExec.output[key].error,
                     testCase:visible?fs.readFileSync(key,"utf8").trim():null,
@@ -92,8 +94,12 @@ module.exports=function(app,io,socketTeam){
                     expectedOutput:visible?output[key]:null
                 })
                 resultDB.push(boxExec.output[key].output===output[key])
-                if(boxExec.output[key].output===output[key]&&!visible)
-                    points+=marking[parseInt(key[key.length-5])-3];
+                if(boxExec.output[key].output===output[key]&&!visible){
+                    points=100
+                }
+            //     console.log(121212,parseInt(key[key.length-5])-2)
+            //     if(boxExec.output[key].output===output[key]&&!visible)
+            //         points+=marking[parseInt(key[key.length-5])-2];
             }
             result.sort((a,b)=>{
                 if(a.case < b.case) return -1;
@@ -122,12 +128,13 @@ module.exports=function(app,io,socketTeam){
                     //leaderboard refresh
                     io.emit('updateLeader')
                 }
+                console.log(22222222,points)
                 if(points==100){
                     await Score.updateMany({team:req.body.team},{allowed:false})
                     await Queue.insert(req.body.team)
                     emitMem(io,socketTeam[req.body.team],req.body.socketId,'updateQues')
                 }
-                emitMem(io,socketTeam[req.body.team],req.body.socketId,'updateSub')
+                emitMem(io,socketTeam[req.body.team],null,'updateSub')
                 res.json({points,done:points==100?true:false,result})
             })
         });

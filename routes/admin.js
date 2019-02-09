@@ -11,10 +11,11 @@ console.log(adminPolicy)
 module.exports=function(app,io,socketTeam){
     app.post('/assign',adminPolicy,async function(req,res){
         var {level}=req.body
-        team=await teamQueue.shift()
-        team=team.toLowerCase()
-        if(team===undefined) return res.status(400).json({msg:'empty queue'})
+        team=await teamQueue.shift(io,socketTeam)
+        console.log(11111111111111111111111111,team)
+        if(!team) return res.status(400).json({msg:'empty queue'})
         console.log({level,team})
+        team=team.toLowerCase()
 
         if(!['hard','medium','easy'].includes(level) || !(await Team.findOne({team})))
             return res.status(400).json({err:'invalid level or team'})
@@ -89,7 +90,7 @@ module.exports=function(app,io,socketTeam){
         res.json(queue)
     })
     app.delete('/queue',adminPolicy, async (req,res)=>{
-        queue=await teamQueue.shift(req.body.team)
+        queue=await teamQueue.shift()
         res.json(queue)
     })
 
@@ -105,6 +106,7 @@ module.exports=function(app,io,socketTeam){
         res.json(await Team.distinct('team'))
     })
     app.get('/sockets',adminPolicy,async (req,res)=>{
+        console.log(socketTeam)
         res.json(socketTeam)
     })
 }

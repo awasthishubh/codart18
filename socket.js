@@ -14,8 +14,9 @@ module.exports={
     onFunc:function(io,socketTeam){
         io.on('connection',(socket)=>{
             socket.on('connectMe',function(data){
-                console.log(process.env.SECRET)
+                console.log('new connection')
                 jwt.verify(data, process.env.SECRET, function(err, decoded) {
+                    console.log('connecting..',decoded)
                     try{ 
                         if (err) throw err;
                         if(socketTeam[decoded.team] && socketTeam[decoded.team].length>0){
@@ -30,6 +31,7 @@ module.exports={
             })
             socket.on('disconnect',()=>{
                 if(socket.verified){
+                    console.log('disconnecting...',socket.team)
                     socketTeam[socket.team].splice(socketTeam[socket.team].indexOf(socket.team),1)
                 }
             })

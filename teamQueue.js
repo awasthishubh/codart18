@@ -1,4 +1,5 @@
 TeamQueue=require('./models/TeamQueue');
+var emitMem=require('./socket').brodcast
 
 module.exports ={
     insert:function(team){
@@ -14,7 +15,7 @@ module.exports ={
             } catch(e){throw(e)}
         })
     },
-    shift:function(){
+    shift:function(io,socketTeam){
         return new Promise(async (resolve,reject)=>{
             try{
                 data=await TeamQueue.findOne({})
@@ -22,6 +23,10 @@ module.exports ={
                     data=TeamQueue.create({})
                 team=data.queue.shift()
                 await data.save()
+                if(io&&socketTeam[team])
+                data.queue.forEach(team => {
+                    emitMem(io,socketTeam[team],null,'updateQues')
+                });
                 resolve(team)
             } catch(e){throw(e)}
         })
