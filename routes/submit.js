@@ -85,10 +85,10 @@ module.exports=function(app,io,socketTeam){
             for(key in boxExec.output){
                 
                 output[key]=output[key].replace(/\r\n/g,'\n')
-                console.log('---------------------')
-                console.log(JSON.stringify(output[key]))
-                console.log(JSON.stringify(boxExec.output[key].output))
-                console.log('---------------------')
+                // console.log('---------------------')
+                // console.log(JSON.stringify(output[key]))
+                // console.log(JSON.stringify(boxExec.output[key].output))
+                // console.log('---------------------')
                 visible=['1'].includes(key[key.length-5])
                 result.push({
                     case:parseInt(key.slice(-5,-4)),

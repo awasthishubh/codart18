@@ -9,7 +9,7 @@ mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
         dPath=path.join(__dirname,'files','problems',level)
         fs.readdirSync(dPath).forEach(folder=>{
             qPath=path.join(dPath,folder)
-            if(folder=='0') return
+            // if(folder=='0') return
             output=[]; test=[];
             for(let i=1;i<=2;i++){
                 test.push(path.join(level,folder,`T${i}.txt`))

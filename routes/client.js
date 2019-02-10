@@ -11,10 +11,11 @@ var emitMem=require('../socket').brodcast
 
 module.exports=(app,io,socketTeam)=>{
     app.get('/leaderboard',userPolicy,async (req,res)=>{
-        scre=[]
+        var scre=[]
         teams=await Team.distinct('team');
         console.log(teams)
-        for(let i=0; i<teams.length; i++){
+        for(var i=0; i<teams.length; i++){
+            console.log(i)
             teamScore={team:teams[i],score:0, totalQues:0, solvedQues:0}
             teamScr=await Score.find({team:teams[i]})
             teamScr.forEach(point=>{
@@ -34,6 +35,7 @@ module.exports=(app,io,socketTeam)=>{
         })
         position=scre.findIndex(x=>x.team==req.body.team)+1
         res.json({position,result:scre})
+        scre=[]
     })
 
     app.get('/team/problem',userPolicy,async (req,res)=>{
