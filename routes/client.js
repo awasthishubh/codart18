@@ -71,7 +71,7 @@ module.exports=(app,io,socketTeam)=>{
             index=await Queue.getIndex(req.body.team)
             return res.status(404).json({err:'No Ques assigned',QueueIndex:index})
         }
-        attempts=await Attempts.find({team:req.body.team,qid:q.qid})
+        attempts=await Attempts.find({team:req.body.team,qid:q.qid}).sort({_id:-1})
         res.send(attempts)
     })
 

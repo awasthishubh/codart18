@@ -59,6 +59,7 @@ module.exports=function(app,io,socketTeam){
         //######---DB---############
         Test=ques.testCase
         outputDB=ques.output
+        time=ques.time
         // Test=['1/V1.txt','1/V2.txt','1/T3.txt','1/T4.txt','1/T5.txt']
         // outputDB=['1','1','4','3','1']
         //##############
@@ -74,7 +75,7 @@ module.exports=function(app,io,socketTeam){
             file=path.join(__dirname,'../files/problems',f)
             TestCase.push({
                 file,
-                timeout: 2
+                timeout: lang==11||lang==16?time*1:lang==25?time*2:time*5
             })
             output[file]=outputDB[i]
         });
@@ -82,7 +83,12 @@ module.exports=function(app,io,socketTeam){
         const boxExec = require('box-exec')();
         boxExec.on("output",async ()=>{
             for(key in boxExec.output){
+                
                 output[key]=output[key].replace(/\r\n/g,'\n')
+                console.log('---------------------')
+                console.log(JSON.stringify(output[key]))
+                console.log(JSON.stringify(boxExec.output[key].output))
+                console.log('---------------------')
                 visible=['1'].includes(key[key.length-5])
                 result.push({
                     case:parseInt(key.slice(-5,-4)),

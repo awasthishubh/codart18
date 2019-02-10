@@ -15,10 +15,10 @@ mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
                 test.push(path.join(level,folder,`T${i}.txt`))
                 output.push(fs.readFileSync(path.join(qPath,`O${i}.txt`),"utf8").trim())
             }
-
+            time=level[0]+folder=='m1'?2:1
             statement=fs.readFileSync(path.join(qPath,'statement.txt'),"utf8").trim()
-            title=statement.split('\n')[0]
-            descr=statement.split('\n').splice(1).join('\n')
+            title=statement.split('\n')[0].trim()
+            descr=statement.split('\n').splice(1).join('\n').trim()
             // Ques.deleteMany({}, (err)=>{
             //     if(err) throw err
                 
@@ -28,11 +28,12 @@ mongoose.connect(process.env.DB,{useNewUrlParser: true},(err,db)=>{
                     id:level[0]+folder,
                     level,
                     descr, title,
+                    time,
                     testCase:test,
                     output:output
                 },
                 {upsert:true,setDefaultsOnInsert: true},
-                (err)=>{
+                (err)=>{    
                     if(err) throw err
                     db.close()
                 }

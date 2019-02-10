@@ -15,6 +15,7 @@ const Questions = new Schema({
     title:String,
     testCase:Array,
     output:Array,
+    time:Number,
     count:{
         type:Number,
         default: 0
